@@ -653,6 +653,7 @@
       </div>
 
       <button type="submit" class="submit" id="submitBtn">Send RSVP</button>
+      <p class="hint">Changed your mind later? Just fill this out again — it'll update your reply.</p>
       <p class="confirm" id="confirmMsg"></p>
     </form>
   </div>
@@ -682,6 +683,17 @@
         <button type="submit" class="modal-submit">Unlock</button>
       </div>
     </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirmOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <p class="modal-title" id="confirmTitle">Update your RSVP?</p>
+    <p class="modal-sub" id="confirmMessage"></p>
+    <div class="modal-actions">
+      <button type="button" class="modal-cancel" id="confirmCancel">Cancel</button>
+      <button type="button" class="modal-submit" id="confirmOk">Replace it</button>
+    </div>
   </div>
 </div>
 
@@ -749,8 +761,48 @@
   const organizerPasscodeInput = document.getElementById("organizerPasscodeInput");
   const organizerError = document.getElementById("organizerError");
   const organizerCancel = document.getElementById("organizerCancel");
+  const confirmOverlay = document.getElementById("confirmOverlay");
+  const confirmMessage = document.getElementById("confirmMessage");
+  const confirmCancel = document.getElementById("confirmCancel");
+  const confirmOk = document.getElementById("confirmOk");
 
   let cache = [];
+
+  // Generic yes/no modal (styled like the organizer one) — used to confirm
+  // replacing an existing reply instead of a jarring native confirm().
+  function confirmDialog(message) {
+    return new Promise((resolve) => {
+      confirmMessage.textContent = message;
+      confirmOverlay.classList.add("open");
+      function cleanup(result) {
+        confirmOverlay.classList.remove("open");
+        confirmOk.removeEventListener("click", onOk);
+        confirmCancel.removeEventListener("click", onCancel);
+        confirmOverlay.removeEventListener("click", onOverlay);
+        resolve(result);
+      }
+      function onOk() { cleanup(true); }
+      function onCancel() { cleanup(false); }
+      function onOverlay(e) { if (e.target === confirmOverlay) cleanup(false); }
+      confirmOk.addEventListener("click", onOk);
+      confirmCancel.addEventListener("click", onCancel);
+      confirmOverlay.addEventListener("click", onOverlay);
+    });
+  }
+
+  // Remembers this visitor's own reply on this device/browser, so they can
+  // come back and update it instead of accidentally creating a duplicate.
+  const MY_RSVP_KEY = "sunday-book-club-my-rsvp";
+
+  function loadMyRsvp() {
+    try { return JSON.parse(localStorage.getItem(MY_RSVP_KEY)); } catch { return null; }
+  }
+
+  function saveMyRsvp(entry) {
+    localStorage.setItem(MY_RSVP_KEY, JSON.stringify({
+      id: entry.id, name: entry.name, attending: entry.attending, reason: entry.reason,
+    }));
+  }
 
   // Organizer-only delete: a soft, client-side gate (not real auth) so casual
   // guests don't see or use the remove button. A determined technical visitor
@@ -809,6 +861,19 @@
   }
   attendYes.addEventListener("change", toggleReason);
   attendNo.addEventListener("change", toggleReason);
+
+  const myRsvp = loadMyRsvp();
+  if (myRsvp) {
+    nameInput.value = myRsvp.name;
+    if (myRsvp.attending) {
+      attendYes.checked = true;
+    } else {
+      attendNo.checked = true;
+    }
+    toggleReason();
+    if (!myRsvp.attending) reasonInput.value = myRsvp.reason || "";
+    submitBtn.textContent = "Update RSVP";
+  }
 
   async function fetchState() {
     const res = await fetch(STATE_URL, { cache: "no-store" });
@@ -928,38 +993,69 @@
     const attending = attendYes.checked;
     if (!attendYes.checked && !attendNo.checked) return;
 
-    const entry = {
-      id: Date.now() + "-" + Math.random().toString(36).slice(2, 7),
-      name: nameInput.value.trim(),
-      attending,
-      reason: attending ? "" : reasonInput.value.trim(),
-      ts: Date.now(),
-    };
+    const name = nameInput.value.trim();
+    const reason = attending ? "" : reasonInput.value.trim();
 
     submitBtn.disabled = true;
+    const restoreLabel = submitBtn.textContent;
     submitBtn.textContent = "Sending…";
     confirmMsg.className = "confirm";
 
     try {
       const latest = await fetchResponses();
-      const list = [...latest, entry];
+      const mine = loadMyRsvp();
+
+      // Same browser as before → update that exact reply, no need to ask.
+      let matchIndex = mine ? latest.findIndex((r) => r.id === mine.id) : -1;
+
+      // Different device, same name → could be them changing their mind,
+      // could be a name collision. Ask before overwriting either way.
+      if (matchIndex === -1) {
+        matchIndex = latest.findIndex((r) => r.name.trim().toLowerCase() === name.toLowerCase());
+        if (matchIndex !== -1) {
+          const existing = latest[matchIndex];
+          const prior = existing.attending
+            ? "attending"
+            : "not attending" + (existing.reason ? ` ("${existing.reason}")` : "");
+          const proceed = await confirmDialog(
+            `${existing.name} already replied — ${prior}. Replace that reply with this new answer?`
+          );
+          if (!proceed) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = restoreLabel;
+            return;
+          }
+        }
+      }
+
+      const entry = {
+        id: matchIndex !== -1 ? latest[matchIndex].id : Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+        name,
+        attending,
+        reason,
+        ts: Date.now(),
+      };
+
+      const list = matchIndex !== -1
+        ? latest.map((r, i) => (i === matchIndex ? entry : r))
+        : [...latest, entry];
+
       await writeResponses(list);
       cache = list;
       renderList();
+      saveMyRsvp(entry);
 
       confirmMsg.textContent = attending
         ? `Wonderful, ${entry.name} — you're on the list. See you there.`
         : `Noted, ${entry.name}. You'll be missed — thanks for letting us know.`;
       confirmMsg.className = "confirm show" + (attending ? "" : " declined");
-
-      form.reset();
-      reasonWrap.classList.remove("open");
+      submitBtn.textContent = "Update RSVP";
     } catch (err) {
       confirmMsg.textContent = "Couldn't send your RSVP — check your connection and try again.";
       confirmMsg.className = "confirm show declined";
+      submitBtn.textContent = restoreLabel;
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = "Send RSVP";
     }
   });
 
