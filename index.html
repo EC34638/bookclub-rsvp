@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sunday Night Book Club — RSVP</title>
+<style>
+  /* Committed dark, literary palette — intentionally single-theme, like a printed card. */
+  :root {
+    --bg: #0f1215;
+    --bg-vignette: #181f24;
+    --surface: #1a2025;
+    --surface-2: #232a30;
+    --border: #2d353c;
+    --text: #ece7da;
+    --text-muted: #9aa19f;
+    --text-faint: #626c6a;
+    --accent: #c79a56;
+    --accent-strong: #e6c184;
+    --accent-soft: rgba(199, 154, 86, 0.14);
+    --going: #8fae8a;
+    --going-soft: rgba(143, 174, 138, 0.14);
+    --not-going: #c08361;
+    --not-going-soft: rgba(192, 131, 97, 0.14);
+    --shadow: rgba(0, 0, 0, 0.55);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, var(--bg-vignette), transparent),
+      var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    padding: clamp(28px, 6vw, 72px) 20px;
+    display: flex;
+    justify-content: center;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    width: 100%;
+    max-width: 620px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    box-shadow: 0 30px 60px -30px var(--shadow);
+    padding: clamp(28px, 5vw, 52px);
+    animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .hero-text { flex: 1; min-width: 0; }
+
+  .cover {
+    flex: none;
+    width: clamp(72px, 18vw, 100px);
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: 5px;
+    box-shadow: 0 22px 40px -18px var(--shadow), 0 0 0 1px var(--border);
+    position: relative;
+    z-index: 1;
+    cursor: zoom-in;
+    transform-origin: top right;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .cover:hover,
+  .cover:focus-visible {
+    transform: scale(1.6);
+    box-shadow: 0 30px 60px -16px var(--shadow), 0 0 0 1px var(--border);
+    z-index: 5;
+  }
+
+  @media (max-width: 460px) {
+    .cover { transform-origin: top center; }
+  }
+
+  @media (max-width: 460px) {
+    .hero { flex-direction: column-reverse; }
+    .cover { width: 84px; }
+  }
+
+  .eyebrow {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 14px;
+  }
+
+  h1 {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    font-size: clamp(1.9rem, 5vw, 2.5rem);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+
+  .book-title {
+    font-style: italic;
+    color: var(--accent-strong);
+  }
+
+  .book-line {
+    margin: 0;
+    font-size: 1.02rem;
+    color: var(--text-muted);
+  }
+
+  .details {
+    margin: 18px 0 0;
+    padding: 16px 0 0;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    font-size: 0.92rem;
+    color: var(--text-muted);
+  }
+
+  .details dl {
+    margin: 0;
+    display: flex;
+    gap: 6px;
+  }
+
+  .details dt {
+    color: var(--text-faint);
+  }
+
+  .details dd {
+    margin: 0;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  form {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 8px;
+  }
+
+  .field input[type="text"] {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-size: 1.05rem;
+    font-family: inherit;
+    padding: 8px 2px;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .field input[type="text"]::placeholder {
+    color: var(--text-faint);
+  }
+
+  .field input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+
+  .choice-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .choice {
+    position: relative;
+  }
+
+  .choice input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+
+  .choice label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 10px;
+    font-size: 0.96rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    background: var(--surface-2);
+    transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease, transform 0.12s ease;
+  }
+
+  .choice label::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1.5px solid var(--text-faint);
+    flex: none;
+    transition: inherit;
+  }
+
+  .choice input:checked + label {
+    color: var(--text);
+    transform: translateY(-1px);
+  }
+
+  .choice.yes input:checked + label {
+    border-color: var(--going);
+    background: var(--going-soft);
+  }
+  .choice.yes input:checked + label::before {
+    border-color: var(--going);
+    background: var(--going);
+  }
+
+  .choice.no input:checked + label {
+    border-color: var(--not-going);
+    background: var(--not-going-soft);
+  }
+  .choice.no input:checked + label::before {
+    border-color: var(--not-going);
+    background: var(--not-going);
+  }
+
+  .choice input:focus-visible + label {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .reason-wrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.28s ease, opacity 0.22s ease;
+  }
+  .reason-wrap.open {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+  .reason-wrap > div { overflow: hidden; }
+
+  textarea {
+    width: 100%;
+    resize: vertical;
+    min-height: 76px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.95rem;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  textarea:focus { border-color: var(--accent); }
+
+  .hint {
+    font-size: 0.78rem;
+    color: var(--text-faint);
+    margin-top: -8px;
+  }
+
+  button.submit {
+    margin-top: 4px;
+    align-self: flex-start;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 8px;
+    padding: 13px 28px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.12s ease;
+  }
+  button.submit:hover { background: var(--accent-strong); }
+  button.submit:active { transform: translateY(1px); }
+  button.submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.submit:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .confirm {
+    display: none;
+    margin-top: 30px;
+    padding: 16px 18px;
+    border-radius: 8px;
+    background: var(--going-soft);
+    border: 1px solid var(--going);
+    color: var(--text);
+    font-size: 0.92rem;
+  }
+  .confirm.declined {
+    background: var(--not-going-soft);
+    border-color: var(--not-going);
+  }
+  .confirm.show { display: block; animation: rise 0.4s ease both; }
+
+  .list-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: clamp(24px, 4vw, 40px);
+  }
+
+  .list-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .list-head h2 {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    font-weight: 500;
+    font-size: 1.3rem;
+    margin: 0;
+    flex: 1;
+  }
+
+  .refresh {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, transform 0.4s ease;
+  }
+  .refresh:hover { color: var(--accent); border-color: var(--accent); }
+  .refresh:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .refresh.spinning { transform: rotate(360deg); }
+
+  .list-count {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .list-note {
+    font-size: 0.78rem;
+    color: var(--text-faint);
+    margin: 4px 0 0;
+    line-height: 1.5;
+  }
+
+  .organizer-link {
+    display: inline-block;
+    margin: 8px 0 20px;
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    color: var(--text-faint);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+  .organizer-link:hover { color: var(--accent); }
+  .organizer-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  body.organizer-mode .organizer-link {
+    color: var(--going);
+    text-decoration: none;
+    cursor: default;
+  }
+
+  .responses {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .responses li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+  }
+  .responses li:first-child { border-top: none; }
+
+  .avatar {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    color: var(--accent-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .entry-body { flex: 1; min-width: 0; }
+
+  .entry-top {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+  }
+
+  .entry-name {
+    font-weight: 600;
+    font-size: 0.98rem;
+  }
+
+  .pill {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+  .pill.going { color: var(--going); background: var(--going-soft); }
+  .pill.not-going { color: var(--not-going); background: var(--not-going-soft); }
+
+  .entry-reason {
+    margin: 6px 0 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .entry-time {
+    margin-top: 4px;
+    font-size: 0.75rem;
+    color: var(--text-faint);
+  }
+
+  .remove {
+    display: none;
+    flex: none;
+    background: none;
+    border: none;
+    color: var(--text-faint);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: color 0.15s ease;
+  }
+  body.organizer-mode .remove { display: block; }
+  .remove:hover { color: var(--not-going); }
+  .remove:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .empty {
+    padding: 30px 0;
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 0.9rem;
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 8, 10, 0.65);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 50;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    width: 100%;
+    max-width: 320px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 26px;
+    box-shadow: 0 30px 70px -20px var(--shadow);
+    animation: rise 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .modal-title {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin: 0 0 6px;
+  }
+
+  .modal-sub {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0 0 18px;
+  }
+
+  .modal input[type="password"] {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 11px 13px;
+    color: var(--text);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .modal input[type="password"]:focus { border-color: var(--accent); }
+
+  .modal-error {
+    display: none;
+    color: var(--not-going);
+    font-size: 0.8rem;
+    margin: 10px 0 0;
+  }
+  .modal-error.show { display: block; }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 20px;
+  }
+
+  .modal-cancel {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    padding: 9px 12px;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+  .modal-cancel:hover { color: var(--text); }
+
+  .modal-submit {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 6px;
+    padding: 9px 20px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s ease;
+  }
+  .modal-submit:hover { background: var(--accent-strong); }
+  .modal-cancel:focus-visible,
+  .modal-submit:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card, .confirm, .modal { animation: none; }
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="card">
+    <div class="hero">
+      <div class="hero-text">
+        <p class="eyebrow">You're invited</p>
+        <h1 id="clubNameText">Sunday Night Book Club</h1>
+        <p class="book-line">We're discussing <span class="book-title" id="bookTitleText">Kin</span> by <span id="bookAuthorText">Tayari Jones</span></p>
+      </div>
+      <img class="cover" id="coverImg" src="" alt="" />
+    </div>
+    <dl class="details" id="detailsList"></dl>
+
+    <form id="rsvpForm">
+      <div class="field">
+        <label for="nameInput">Your name</label>
+        <input type="text" id="nameInput" placeholder="e.g. Jordan Lee" autocomplete="name" required />
+      </div>
+
+      <div class="field">
+        <label>Will you be there?</label>
+        <div class="choice-group" role="radiogroup" aria-label="Attendance">
+          <div class="choice yes">
+            <input type="radio" name="attending" id="attendYes" value="yes" />
+            <label for="attendYes">I'll be there</label>
+          </div>
+          <div class="choice no">
+            <input type="radio" name="attending" id="attendNo" value="no" />
+            <label for="attendNo">Can't make it</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="reason-wrap" id="reasonWrap">
+        <div>
+          <div class="field">
+            <label for="reasonInput">A short reason</label>
+            <textarea id="reasonInput" placeholder="e.g. Traveling that week — will miss you all"></textarea>
+            <p class="hint">Just a line or two — no need to explain in full.</p>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="submit" id="submitBtn">Send RSVP</button>
+      <p class="confirm" id="confirmMsg"></p>
+    </form>
+  </div>
+
+  <div class="list-card">
+    <div class="list-head">
+      <h2>Who's replied</h2>
+      <button type="button" class="refresh" id="refreshBtn" title="Check for new replies" aria-label="Refresh replies">⟳</button>
+      <span class="list-count" id="listCount">Loading…</span>
+    </div>
+    <p class="list-note">Everyone who opens this page sees the same list, updated live. It's stored on a free public sharing service — please skip sensitive details in your reason.</p>
+    <button type="button" class="organizer-link" id="organizerLink">Organizer</button>
+    <ul class="responses" id="responsesList"></ul>
+    <p class="empty" id="emptyState" style="display:none;">No replies yet. Be the first.</p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="organizerOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="organizerModalTitle">
+    <p class="modal-title" id="organizerModalTitle">Organizer sign-in</p>
+    <p class="modal-sub">Enter the passcode to manage replies on this device.</p>
+    <form id="organizerForm">
+      <input type="password" id="organizerPasscodeInput" placeholder="Passcode" autocomplete="off" />
+      <p class="modal-error" id="organizerError">That's not the right passcode.</p>
+      <div class="modal-actions">
+        <button type="button" class="modal-cancel" id="organizerCancel">Cancel</button>
+        <button type="submit" class="modal-submit">Unlock</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const CONFIG = {
+    clubName: "Sunday Night Book Club",
+    bookTitle: "Kin",
+    bookAuthor: "Tayari Jones",
+    dateText: "Sunday, August 2",
+    timeText: "9:00 – 10:30 PM (GMT+8)",
+    locationText: "Online",
+    coverUrl: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1758077674i/241126800.jpg"
+  };
+
+  document.getElementById("clubNameText").textContent = CONFIG.clubName;
+  document.getElementById("bookTitleText").textContent = CONFIG.bookTitle;
+  document.getElementById("bookAuthorText").textContent = CONFIG.bookAuthor;
+
+  const coverImg = document.getElementById("coverImg");
+  if (CONFIG.coverUrl) {
+    coverImg.src = CONFIG.coverUrl;
+    coverImg.alt = "Cover of " + CONFIG.bookTitle + " by " + CONFIG.bookAuthor;
+    coverImg.addEventListener("error", () => { coverImg.style.display = "none"; });
+  } else {
+    coverImg.style.display = "none";
+  }
+
+  const detailsList = document.getElementById("detailsList");
+  [
+    ["Date", CONFIG.dateText],
+    ["Time", CONFIG.timeText],
+    ["Where", CONFIG.locationText],
+  ].forEach(([term, desc]) => {
+    const dl = document.createElement("dl");
+    const dt = document.createElement("dt");
+    dt.textContent = term;
+    const dd = document.createElement("dd");
+    dd.textContent = desc;
+    dl.append(dt, dd);
+    detailsList.appendChild(dl);
+  });
+
+  // Shared, public JSON store (kvdb.io) — every visitor reads and writes the
+  // same key, so replies are visible to everyone. Shared with the book
+  // review page, which keeps its own "reviews"/"comments" fields in the same
+  // object; RSVP only ever touches "responses".
+  const STATE_URL = "https://kvdb.io/4uEc6jHC7Zyy6Z98YqioAH/state";
+  const POLL_MS = 20000;
+
+  const form = document.getElementById("rsvpForm");
+  const nameInput = document.getElementById("nameInput");
+  const attendYes = document.getElementById("attendYes");
+  const attendNo = document.getElementById("attendNo");
+  const reasonWrap = document.getElementById("reasonWrap");
+  const reasonInput = document.getElementById("reasonInput");
+  const confirmMsg = document.getElementById("confirmMsg");
+  const responsesList = document.getElementById("responsesList");
+  const listCount = document.getElementById("listCount");
+  const emptyState = document.getElementById("emptyState");
+  const submitBtn = document.getElementById("submitBtn");
+  const refreshBtn = document.getElementById("refreshBtn");
+  const organizerLink = document.getElementById("organizerLink");
+  const organizerOverlay = document.getElementById("organizerOverlay");
+  const organizerForm = document.getElementById("organizerForm");
+  const organizerPasscodeInput = document.getElementById("organizerPasscodeInput");
+  const organizerError = document.getElementById("organizerError");
+  const organizerCancel = document.getElementById("organizerCancel");
+
+  let cache = [];
+
+  // Organizer-only delete: a soft, client-side gate (not real auth) so casual
+  // guests don't see or use the remove button. A determined technical visitor
+  // could still find ORGANIZER_PASSCODE in the page source.
+  const ORGANIZER_PASSCODE = "123456";
+  const ORGANIZER_STORAGE_KEY = "sunday-book-club-organizer-unlocked";
+
+  function setOrganizerMode(on) {
+    document.body.classList.toggle("organizer-mode", on);
+    organizerLink.textContent = on ? "Organizer ✓" : "Organizer";
+  }
+
+  if (localStorage.getItem(ORGANIZER_STORAGE_KEY) === "true") setOrganizerMode(true);
+
+  function openOrganizerModal() {
+    organizerError.classList.remove("show");
+    organizerForm.reset();
+    organizerOverlay.classList.add("open");
+    organizerPasscodeInput.focus();
+  }
+
+  function closeOrganizerModal() {
+    organizerOverlay.classList.remove("open");
+  }
+
+  organizerLink.addEventListener("click", () => {
+    if (document.body.classList.contains("organizer-mode")) return;
+    openOrganizerModal();
+  });
+
+  organizerCancel.addEventListener("click", closeOrganizerModal);
+  organizerOverlay.addEventListener("click", (e) => {
+    if (e.target === organizerOverlay) closeOrganizerModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && organizerOverlay.classList.contains("open")) closeOrganizerModal();
+  });
+
+  organizerForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (organizerPasscodeInput.value === ORGANIZER_PASSCODE) {
+      localStorage.setItem(ORGANIZER_STORAGE_KEY, "true");
+      setOrganizerMode(true);
+      closeOrganizerModal();
+    } else {
+      organizerError.classList.add("show");
+      organizerPasscodeInput.select();
+    }
+  });
+
+  function toggleReason() {
+    const open = attendNo.checked;
+    reasonWrap.classList.toggle("open", open);
+    reasonInput.required = open;
+    if (!open) reasonInput.value = "";
+  }
+  attendYes.addEventListener("change", toggleReason);
+  attendNo.addEventListener("change", toggleReason);
+
+  async function fetchState() {
+    const res = await fetch(STATE_URL, { cache: "no-store" });
+    if (res.status === 404) return { responses: [], reviews: [], comments: [] };
+    if (!res.ok) throw new Error("Couldn't reach the shared list (" + res.status + ")");
+    const data = await res.json();
+    return {
+      responses: Array.isArray(data.responses) ? data.responses : [],
+      reviews: Array.isArray(data.reviews) ? data.reviews : [],
+      comments: Array.isArray(data.comments) ? data.comments : [],
+    };
+  }
+
+  async function fetchResponses() {
+    const state = await fetchState();
+    return state.responses;
+  }
+
+  async function writeResponses(list) {
+    const latest = await fetchState();
+    const res = await fetch(STATE_URL, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...latest, responses: list }),
+    });
+    if (!res.ok) throw new Error("Couldn't save your reply (" + res.status + ")");
+  }
+
+  function initials(name) {
+    return name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((w) => w[0]?.toUpperCase() || "")
+      .join("");
+  }
+
+  function formatTime(ts) {
+    const d = new Date(ts);
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) +
+      " · " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function renderList() {
+    const list = cache;
+    listCount.textContent = list.length === 1 ? "1 reply" : list.length + " replies";
+    emptyState.style.display = list.length ? "none" : "block";
+    responsesList.innerHTML = list
+      .slice()
+      .reverse()
+      .map((r) => `
+        <li data-id="${r.id}">
+          <div class="avatar">${escapeHtml(initials(r.name))}</div>
+          <div class="entry-body">
+            <div class="entry-top">
+              <span class="entry-name">${escapeHtml(r.name)}</span>
+              <span class="pill ${r.attending ? "going" : "not-going"}">${r.attending ? "Attending" : "Can't make it"}</span>
+            </div>
+            ${r.reason ? `<p class="entry-reason">"${escapeHtml(r.reason)}"</p>` : ""}
+            <p class="entry-time">${formatTime(r.ts)}</p>
+          </div>
+          <button class="remove" title="Remove this reply" aria-label="Remove reply from ${escapeHtml(r.name)}">&times;</button>
+        </li>
+      `)
+      .join("");
+  }
+
+  async function refresh({ spin } = {}) {
+    if (spin) refreshBtn.classList.add("spinning");
+    try {
+      cache = await fetchResponses();
+      renderList();
+    } catch (err) {
+      listCount.textContent = "Offline";
+    } finally {
+      if (spin) setTimeout(() => refreshBtn.classList.remove("spinning"), 400);
+    }
+  }
+
+  refreshBtn.addEventListener("click", () => refresh({ spin: true }));
+
+  // No blind interval polling — that's what burns free API quota. Instead,
+  // refresh on load and when the visitor comes back to this tab (throttled).
+  let lastAutoRefresh = Date.now();
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && Date.now() - lastAutoRefresh > POLL_MS) {
+      lastAutoRefresh = Date.now();
+      refresh();
+    }
+  });
+
+  responsesList.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".remove");
+    if (!btn) return;
+    const id = btn.closest("li").dataset.id;
+    btn.disabled = true;
+    try {
+      const latest = await fetchResponses();
+      const list = latest.filter((r) => String(r.id) !== id);
+      await writeResponses(list);
+      cache = list;
+      renderList();
+    } catch (err) {
+      alert("Couldn't remove that reply — check your connection and try again.");
+      btn.disabled = false;
+    }
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const attending = attendYes.checked;
+    if (!attendYes.checked && !attendNo.checked) return;
+
+    const entry = {
+      id: Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+      name: nameInput.value.trim(),
+      attending,
+      reason: attending ? "" : reasonInput.value.trim(),
+      ts: Date.now(),
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending…";
+    confirmMsg.className = "confirm";
+
+    try {
+      const latest = await fetchResponses();
+      const list = [...latest, entry];
+      await writeResponses(list);
+      cache = list;
+      renderList();
+
+      confirmMsg.textContent = attending
+        ? `Wonderful, ${entry.name} — you're on the list. See you there.`
+        : `Noted, ${entry.name}. You'll be missed — thanks for letting us know.`;
+      confirmMsg.className = "confirm show" + (attending ? "" : " declined");
+
+      form.reset();
+      reasonWrap.classList.remove("open");
+    } catch (err) {
+      confirmMsg.textContent = "Couldn't send your RSVP — check your connection and try again.";
+      confirmMsg.className = "confirm show declined";
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Send RSVP";
+    }
+  });
+
+  refresh();
+</script>
+</body>
+</html>

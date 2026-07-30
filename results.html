@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sunday Night Book Club — RSVP Results</title>
+<style>
+  :root {
+    --bg: #0f1215;
+    --surface: #1a2025;
+    --surface-2: #232a30;
+    --border: #2d353c;
+    --text: #ece7da;
+    --text-muted: #9aa19f;
+    --text-faint: #626c6a;
+    --accent: #c79a56;
+    --accent-strong: #e6c184;
+    --going: #8fae8a;
+    --going-soft: rgba(143, 174, 138, 0.14);
+    --not-going: #c08361;
+    --not-going-soft: rgba(192, 131, 97, 0.14);
+    --shadow: rgba(0, 0, 0, 0.5);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: 20px;
+  }
+
+  .panel {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .header-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .mini-cover {
+    flex: none;
+    width: 44px;
+    height: 66px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 10px 20px -8px var(--shadow), 0 0 0 1px var(--border);
+  }
+
+  .header-text { min-width: 0; flex: 1; }
+
+  .refresh {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: color 0.15s ease, border-color 0.15s ease, transform 0.4s ease;
+  }
+  .refresh:hover { color: var(--accent); border-color: var(--accent); }
+  .refresh:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .refresh.spinning { transform: rotate(360deg); }
+
+  .eyebrow {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 4px;
+  }
+
+  h1 {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    font-size: 1.4rem;
+    font-weight: 500;
+    line-height: 1.2;
+    margin: 0 0 4px;
+    text-wrap: balance;
+  }
+
+  .sub {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .sub .book-title {
+    font-style: italic;
+    color: var(--accent-strong);
+  }
+
+  .stats {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .stat {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .stat-num {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    font-size: 1.5rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .responses {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .responses li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 16px 18px;
+    border-top: 1px solid var(--border);
+  }
+  .responses li:first-child { border-top: none; }
+
+  .avatar {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    color: var(--accent-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .entry-body { flex: 1; min-width: 0; }
+
+  .entry-top {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+  }
+
+  .entry-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .pill {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+  .pill.going { color: var(--going); background: var(--going-soft); }
+  .pill.not-going { color: var(--not-going); background: var(--not-going-soft); }
+
+  .entry-reason {
+    margin: 6px 0 0;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .entry-time {
+    margin-top: 4px;
+    font-size: 0.72rem;
+    color: var(--text-faint);
+  }
+
+  .empty {
+    display: none;
+    padding: 30px 0;
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 0.88rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 0;
+  }
+
+  .footnote {
+    margin: 14px 2px 0;
+    font-size: 0.72rem;
+    color: var(--text-faint);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="panel">
+  <div class="header-row">
+    <img class="mini-cover" id="coverImg" src="" alt="" />
+    <div class="header-text">
+      <p class="eyebrow">RSVP Results</p>
+      <h1 id="clubNameText">Sunday Night Book Club</h1>
+      <p class="sub"><span class="book-title" id="bookTitleText">Kin</span> by <span id="bookAuthorText">Tayari Jones</span> · <span id="dateText">Sunday, August 2</span></p>
+    </div>
+    <button type="button" class="refresh" id="refreshBtn" title="Refresh now" aria-label="Refresh replies">⟳</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-num" id="goingCount">0</span>
+      <span class="stat-label">Attending</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="notGoingCount">0</span>
+      <span class="stat-label">Can't make it</span>
+    </div>
+  </div>
+
+  <ul class="responses" id="responsesList"></ul>
+  <p class="empty" id="emptyState">No replies yet.</p>
+  <p class="footnote" id="footnote">Updates automatically</p>
+</div>
+
+<script>
+  const CONFIG = {
+    clubName: "Sunday Night Book Club",
+    bookTitle: "Kin",
+    bookAuthor: "Tayari Jones",
+    dateText: "Sunday, August 2",
+    coverUrl: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1758077674i/241126800.jpg"
+  };
+
+  document.getElementById("clubNameText").textContent = CONFIG.clubName;
+  document.getElementById("bookTitleText").textContent = CONFIG.bookTitle;
+  document.getElementById("bookAuthorText").textContent = CONFIG.bookAuthor;
+  document.getElementById("dateText").textContent = CONFIG.dateText;
+
+  const coverImg = document.getElementById("coverImg");
+  if (CONFIG.coverUrl) {
+    coverImg.src = CONFIG.coverUrl;
+    coverImg.alt = "Cover of " + CONFIG.bookTitle + " by " + CONFIG.bookAuthor;
+    coverImg.addEventListener("error", () => { coverImg.style.display = "none"; });
+  } else {
+    coverImg.style.display = "none";
+  }
+
+  // Read-only: same shared kvdb.io state the RSVP + review pages use.
+  // GET only, no write key needed. kvdb.io's free tier resets 1,000
+  // requests per hour per IP, so a ~20s refresh while visible is well
+  // within budget (a tab left open all day is ~180 requests/hour).
+  const STATE_URL = "https://kvdb.io/4uEc6jHC7Zyy6Z98YqioAH/state";
+  const REFRESH_CHECK_MS = 20000;
+  const MIN_REFRESH_GAP_MS = 18000;
+
+  const responsesList = document.getElementById("responsesList");
+  const emptyState = document.getElementById("emptyState");
+  const goingCount = document.getElementById("goingCount");
+  const notGoingCount = document.getElementById("notGoingCount");
+  const footnote = document.getElementById("footnote");
+  const refreshBtn = document.getElementById("refreshBtn");
+
+  async function fetchResponses() {
+    const res = await fetch(STATE_URL, { cache: "no-store" });
+    if (res.status === 404) return [];
+    if (!res.ok) throw new Error("fetch failed: " + res.status);
+    const data = await res.json();
+    return Array.isArray(data.responses) ? data.responses : [];
+  }
+
+  function initials(name) {
+    return name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((w) => w[0]?.toUpperCase() || "")
+      .join("");
+  }
+
+  function formatTime(ts) {
+    const d = new Date(ts);
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) +
+      " · " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function render(list) {
+    const going = list.filter((r) => r.attending).length;
+    goingCount.textContent = going;
+    notGoingCount.textContent = list.length - going;
+
+    emptyState.style.display = list.length ? "none" : "block";
+    responsesList.style.display = list.length ? "block" : "none";
+
+    responsesList.innerHTML = list
+      .slice()
+      .reverse()
+      .map((r) => `
+        <li>
+          <div class="avatar">${escapeHtml(initials(r.name))}</div>
+          <div class="entry-body">
+            <div class="entry-top">
+              <span class="entry-name">${escapeHtml(r.name)}</span>
+              <span class="pill ${r.attending ? "going" : "not-going"}">${r.attending ? "Attending" : "Can't make it"}</span>
+            </div>
+            ${r.reason ? `<p class="entry-reason">"${escapeHtml(r.reason)}"</p>` : ""}
+            <p class="entry-time">${formatTime(r.ts)}</p>
+          </div>
+        </li>
+      `)
+      .join("");
+  }
+
+  async function refresh() {
+    try {
+      const list = await fetchResponses();
+      render(list);
+      footnote.textContent = "Updated " + new Date().toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+    } catch (err) {
+      footnote.textContent = "Couldn't refresh — will retry shortly";
+    }
+  }
+
+  let lastRefresh = Date.now();
+  refresh();
+
+  refreshBtn.addEventListener("click", () => {
+    lastRefresh = Date.now();
+    refreshBtn.classList.add("spinning");
+    refresh().finally(() => setTimeout(() => refreshBtn.classList.remove("spinning"), 400));
+  });
+
+  // Only re-fetch when the embed is actually visible, and not more often
+  // than MIN_REFRESH_GAP_MS — kvdb.io's free tier is generous (1,000
+  // requests/hour/IP) but there's no reason to hammer it while hidden.
+  setInterval(() => {
+    if (document.visibilityState === "visible" && Date.now() - lastRefresh > MIN_REFRESH_GAP_MS) {
+      lastRefresh = Date.now();
+      refresh();
+    }
+  }, REFRESH_CHECK_MS);
+</script>
+</body>
+</html>
