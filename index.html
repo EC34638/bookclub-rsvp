@@ -10,7 +10,7 @@
 <style>
   /* "Nuclear War: A Scenario" round — a phosphor-green terminal in an
      underground command post. The screen powers on, the briefing types
-     itself out, a radar sweeps (one blip per reader reporting), and a
+     itself out, a radar sweeps (two incoming ICBM blips), and a
      T-minus clock runs to the meeting. DEFCON 1.
      Every animation either ends on the element's normal style or is driven
      from script, so in-app browsers (WeChat) cannot leave it half-drawn. */
@@ -101,7 +101,7 @@
   .radar::after { top: 50%; left: 0; right: 0; height: 1px; }
   .sweep { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, rgba(109, 255, 154, 0.55), transparent 22%); animation: spin 3.2s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .blip { position: absolute; width: 7px; height: 7px; margin: -3px; border-radius: 50%; background: var(--phos); box-shadow: 0 0 8px var(--phos); animation: ping 3.2s linear infinite; }
+  .blip { position: absolute; width: 7px; height: 7px; margin: -3px; border-radius: 50%; background: var(--alarm); box-shadow: 0 0 8px var(--alarm); animation: ping 3.2s linear infinite; }
   @keyframes ping { 0%, 100% { opacity: 0.25; } 8% { opacity: 1; } 40% { opacity: 0.45; } }
   .radar-label { margin-top: 6px; text-align: center; font-size: 1rem; color: var(--phos-dim); text-shadow: none; }
 
@@ -236,7 +236,7 @@
       <div class="side">
         <div aria-hidden="true">
           <div class="radar" id="radar"><div class="sweep"></div></div>
-          <div class="radar-label" id="radarLabel">READERS INBOUND: 0</div>
+          <div class="radar-label" id="radarLabel">ICBM INBOUND: 2</div>
         </div>
         <figure class="photo">
           <img id="coverImg" src="" alt="" />
@@ -749,24 +749,22 @@
     }, 1100);
   })();
 
-  // One blip per reader who is reporting, at a fixed spot for each name.
-  function updateRadar(list) {
+  // Two incoming ICBMs, always at the same spots (not tied to replies).
+  function updateRadar() {
     const radar = document.getElementById("radar");
-    radar.querySelectorAll(".blip").forEach((b) => b.remove());
-    const going = list.filter((r) => r.attending);
-    going.forEach((r) => {
-      let h = 0;
-      for (const c of r.name.toLowerCase()) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-      const ang = (h % 360) * Math.PI / 180, rad = 14 + (h >>> 9) % 30;
+    if (radar.querySelector(".blip")) return;
+    [[38, 18], [27, 31]].forEach(([deg, rad]) => {
+      const ang = (deg - 90) * Math.PI / 180;
       const b = document.createElement("span");
       b.className = "blip";
       b.style.left = (50 + Math.cos(ang) * rad) + "%";
       b.style.top = (50 + Math.sin(ang) * rad) + "%";
-      b.style.animationDelay = ((((ang * 180 / Math.PI) + 90) % 360) / 360 * 3.2).toFixed(2) + "s";
+      b.style.animationDelay = (deg / 360 * 3.2).toFixed(2) + "s";
       radar.appendChild(b);
     });
-    document.getElementById("radarLabel").textContent = "READERS INBOUND: " + going.length;
+    document.getElementById("radarLabel").textContent = "ICBM INBOUND: 2";
   }
+  updateRadar();
 
   refresh();
 </script>
